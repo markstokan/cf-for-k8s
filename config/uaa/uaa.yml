@@ -207,7 +207,7 @@ uaa:
 #@   return yaml.encode(overlay.apply(yaml.decode(old), uaa_config()))
 #@ end
 
-#@ uaa = library.get("github.com/cloudfoundry/uaa")
+#@ uaa = library.get("uaa")
 ---
   #@ template.replace(uaa.with_data_values(uaa_values()).eval())
 
