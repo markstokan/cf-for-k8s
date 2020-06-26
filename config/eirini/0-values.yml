@@ -1,0 +1,11 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+system_namespace: cf-system
+workloads_namespace: cf-workloads
+
+app_registry:
+  hostname: ""
+  repository: ""
+  username: ""
+  password: ""
