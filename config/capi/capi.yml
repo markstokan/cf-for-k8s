@@ -1,5 +1,7 @@
 #@ load("@ytt:assert", "assert")
+#@ load("@ytt:base64", "base64")
 #@ load("@ytt:data", "data")
+#@ load("@ytt:json", "json")
 #@ load("@ytt:library", "library")
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:template", "template")
@@ -102,3 +104,24 @@ spec:
         host: #@ "capi." + data.values.system_namespace + ".svc.cluster.local"
         port:
           number: 80
+
+#! add dockerconfigjson version of secret to use as imagePullSecret
+#@overlay/match by=overlay.subset({"kind": "Secret", "metadata":{"name": "cc-kpack-registry-auth-secret"}})
+---
+metadata:
+  annotations:
+    #@overlay/remove
+    build.pivotal.io/docker:
+type: kubernetes.io/dockerconfigjson
+#@overlay/match missing_ok=True
+data:
+  #@ registry_auth = base64.encode("{}:{}".format(data.values.app_registry.username, data.values.app_registry.password))
+  #@ registry_creds = {"username": data.values.app_registry.username, "password": data.values.app_registry.password, "auth": registry_auth}
+  .dockerconfigjson: #@ base64.encode(json.encode({"auths": {data.values.app_registry.hostname: registry_creds}}))
+#@overlay/remove
+stringData:
+#@overlay/match by=overlay.subset({"kind": "ServiceAccount", "metadata":{"name": "cc-kpack-registry-service-account"}})
+---
+#@overlay/match missing_ok=True
+imagePullSecrets:
+  - name: cc-kpack-registry-auth-secret

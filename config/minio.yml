@@ -26,3 +26,18 @@ data:
   secretkey: #@ base64.encode(must_exist(data.values, "cf_blobstore.secret_key"))
 
 --- #@ template.replace(overlay.apply(library.get("minio").eval(), add_cf_blobstore_namespace()))
+
+---
+#! explanation: the blobstore's sidecar needs to accept plain text connections from kpack build init containers.
+#! see https://github.com/cloudfoundry/capi-k8s-release/issues/12
+apiVersion: "authentication.istio.io/v1alpha1"
+kind: "Policy"
+metadata:
+  name: "cf-blobstore-allow-plaintext"
+  namespace: "cf-blobstore"
+spec:
+  targets:
+    - name: cf-blobstore-minio
+  peers:
+    - mtls:
+        mode: PERMISSIVE

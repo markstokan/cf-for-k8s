@@ -1,0 +1,22 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:library", "library")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:template", "template")
+
+#@ kpack = library.get("kpack")
+--- #@ template.replace(kpack.eval())
+
+---
+#! apiServer fails to validate certs provided by istio endpoints.
+#! traffic from apiServer to kpack-webhook is TLS even without istio
+apiVersion: "authentication.istio.io/v1alpha1"
+kind: "Policy"
+metadata:
+  name: "kpack-webhook-allow-plaintext"
+  namespace: "kpack"
+spec:
+  targets:
+  - name: kpack-webhook
+  peers:
+  - mtls:
+      mode: PERMISSIVE
