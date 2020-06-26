@@ -1,0 +1,15 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+system_domain: ""
+system_namespace: ""
+
+metric_proxy:
+  ca:
+    secret_name: "metric-proxy-ca"
+    crt: ""
+    key: ""
+  cert:
+    secret_name: "metric-proxy-cert"
+    crt: ""
+    key: ""
