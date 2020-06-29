@@ -9,7 +9,7 @@ systemNamespace: #@ data.values.system_namespace
 workloadsNamespace: #@ data.values.workloads_namespace
 #@ end
 
-#@ networking = library.get("github.com/cloudfoundry/cf-k8s-networking")
+#@ networking = library.get("cf-k8s-networking")
 --- #@ template.replace(networking.with_data_values(networking_values()).eval())
 
 #! Istio Configurations
@@ -54,7 +54,7 @@ metadata:
 #@ is_ns = overlay.subset({"kind":"Namespace"})
 #@ not_istio_ns = overlay.not_op(overlay.subset({"metadata":{"name":"istio-system"}}))
 
-#@overlay/match by=overlay.and_op(is_ns, not_istio_ns), expects="1+"
+#@overlay/match by=overlay.and_op(is_ns, not_istio_ns), expects="0+"
 ---
 metadata:
   #@overlay/match missing_ok=True
