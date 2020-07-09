@@ -1,0 +1,14 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+capi:
+  database:
+    host: ""
+    user: cloud_controller
+    name: cloud_controller
+
+uaa:
+  database:
+    host: ""
+    user: uaa
+    name: uaa
