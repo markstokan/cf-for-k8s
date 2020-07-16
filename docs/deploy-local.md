@@ -50,7 +50,6 @@ In addition to the Kubernetes version requirement in [Deploying CF for K8s](depl
    - Include the [remove-resource-requirements.yml](../config-optional/remove-resource-requirements.yml),
      [enable-automount-service-account-token.yml](../config-optional/enable-automount-service-account-token.yml),
      [first-party-jwt-istio.yml](../config-optional/first-party-jwt-istio.yml),
-     [ingressgateway-service-nodeport.yml](../config-optional/ingressgateway-service-nodeport.yml),
      [add-metrics-server-components.yml](../config-optional/add-metrics-server-components.yml) and
      [patch-metrics-server.yml](../config-optional/patch-metrics-server.yml)
      overlay files in the set of templates to be deployed. This can be achieved by
