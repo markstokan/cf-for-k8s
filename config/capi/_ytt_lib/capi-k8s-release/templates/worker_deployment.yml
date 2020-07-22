@@ -3,44 +3,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cf-api-deployment-updater
+  name: cf-api-worker
   namespace: #@ data.values.system_namespace
 spec:
   replicas: 1
-  strategy:
-    rollingUpdate:
-      maxSurge: 0
-      maxUnavailable: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: cf-api-deployment-updater
+      app.kubernetes.io/name: cf-api-worker
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: cf-api-deployment-updater
+        app.kubernetes.io/name: cf-api-worker
     spec:
       #@ if/end data.values.imagePullSecrets:
       imagePullSecrets: #@ data.values.imagePullSecrets
       containers:
-        - name: cf-api-deployment-updater
+        - name: cf-api-worker
           workingDir: "/cloud_controller_ng"
           command: ["/usr/local/bin/bundle"]
-          args: ["exec", "rake", "deployment_updater:start"]
+          args: ["exec", "rake", "jobs:generic"]
           image: #@ data.values.images.ccng
           imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 300Mi
+            limits:
+              memory: 1Gi
           readinessProbe:
             tcpSocket:
-              port: 4445
+              port: 4444
             periodSeconds: 3
           volumeMounts:
           - name: cloud-controller-ng-yaml
             mountPath: /config
-          #@ if/end data.values.ccdb.ca_cert:
-          - name: database-ca-cert
-            mountPath: /config/database/certs
           #@ if/end data.values.eirini.serverCerts.secretName:
           - name: eirini-certs
             mountPath: /config/eirini/certs
+          #@ if/end data.values.ccdb.ca_cert:
+          - name: database-ca-cert
+            mountPath: /config/database/certs
+      serviceAccountName: cf-api-worker-service-account
       volumes:
       - name: cloud-controller-ng-yaml
         configMap:
@@ -53,3 +55,4 @@ spec:
       - name: database-ca-cert
         secret:
           secretName: database-ca-cert
+

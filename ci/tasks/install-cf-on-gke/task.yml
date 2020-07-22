@@ -10,6 +10,11 @@ inputs:
   - name: cf-for-k8s-ci
   - name: cf-for-k8s
   - name: pool-lock
+    optional: true
+  - name: tf-vars
+    optional: true
+  - name: terraform
+    optional: true
   - name: env-metadata
     optional: true
 
@@ -17,6 +22,7 @@ params:
   GCP_SERVICE_ACCOUNT_JSON:
   GCP_PROJECT_NAME:
   GCP_PROJECT_ZONE:
+  DOMAIN: k8s-dev.relint.rocks
   USE_EXTERNAL_APP_REGISTRY: false
   APP_REGISTRY_HOSTNAME:
   APP_REGISTRY_REPOSITORY_PREFIX:
