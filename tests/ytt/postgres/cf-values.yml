@@ -1,0 +1,13 @@
+#@data/values
+---
+cf_db:
+  admin_password: vz9o2hbkh6x7ztnd6ua6
+
+capi:
+  database:
+    password: 9v5ljlmxje8uv32gwl5q
+
+uaa:
+  database:
+    password: yevxad9e0pvgc8l6osnt
+
