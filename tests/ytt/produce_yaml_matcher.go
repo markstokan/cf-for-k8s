@@ -7,8 +7,11 @@ import (
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 	"github.com/onsi/gomega/types"
+	v1 "k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"os/exec"
+	"strings"
 )
 
 type ProduceYAMLMatcher struct {
@@ -32,12 +35,12 @@ func (matcher *ProduceYAMLMatcher) Match(actual interface{}) (bool, error) {
 	}
 
 	matcher.rendered = string(session.Out.Contents())
-	obj, err := parseYAML(session.Out)
+	docsMap, err := parseYAML(session.Out)
 	if err != nil {
 		return false, err
 	}
 
-	return matcher.matcher.Match(obj)
+	return matcher.matcher.Match(docsMap)
 }
 
 func (matcher *ProduceYAMLMatcher) FailureMessage(actual interface{}) string {
@@ -79,10 +82,38 @@ func renderWithData(templates []string, data map[string]string) (*gexec.Session,
 
 func parseYAML(yaml *gbytes.Buffer) (interface{}, error) {
 	decode := scheme.Codecs.UniversalDeserializer().Decode
-	obj, _, err := decode(yaml.Contents(), nil, nil)
-	if err != nil {
-		return nil, err
+
+	typedDocs := map[string]interface{}{}
+
+	// for each document
+	docStrings := strings.Split(string(yaml.Contents()), "---")
+	for _, docString := range docStrings {
+
+		obj, _, err := decode([]byte(docString), nil, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		switch o := obj.(type) {
+		case *v1.Namespace:
+			typedDoc, _ := obj.(*v1.Namespace)
+			typedDocs[typedDoc.Name] = typedDoc
+		case *v1.Secret:
+			typedDoc, _ := obj.(*v1.Secret)
+			typedDocs[typedDoc.Name] = typedDoc
+		case *v1.ConfigMap:
+			typedDoc, _ := obj.(*v1.ConfigMap)
+			typedDocs[typedDoc.Name] = typedDoc
+		case *v1.Service:
+			typedDoc, _ := obj.(*v1.Service)
+			typedDocs[typedDoc.Name] = typedDoc
+		case *appsv1.StatefulSet:
+			typedDoc, _ := obj.(*appsv1.StatefulSet)
+			typedDocs[typedDoc.Name] = typedDoc
+		default:
+			fmt.Printf("Unknown type %s\n", format.Object(o, 1))
+		}
 	}
 
-	return obj, nil
+	return typedDocs, nil
 }

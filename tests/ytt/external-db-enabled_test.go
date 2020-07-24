@@ -22,6 +22,8 @@ var _ = Describe("External DB Enabled", func() {
 			map[string]string{
 			})
 
-		Expect(ctx).To(ProduceYAML(BeTrue()))
+		Expect(ctx).To(ProduceYAML(WithDocument("cf-db",
+			RepresentingNamespace().WithName("cf-db"),
+		)))
 	})
 })
