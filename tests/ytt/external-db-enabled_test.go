@@ -22,8 +22,10 @@ var _ = Describe("External DB Enabled", func() {
 			map[string]string{
 			})
 
-		Expect(ctx).To(ProduceYAML(WithDocument("cf-db",
-			RepresentingNamespace().WithName("cf-db"),
-		)))
+		Expect(ctx).To(ProduceYAML(
+			And(
+				WithNamespace("cf-db"),
+				WithStatefulSet("cf-db-postgresql", NewObjectMetaMatcher().WithNamespace("cf-db")),
+			)))
 	})
 })

@@ -72,7 +72,7 @@ func renderWithData(templates []string, data map[string]string) (*gexec.Session,
 	}
 
 	command := exec.Command("ytt", args...)
-	session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+	session, err := gexec.Start(command, nil, GinkgoWriter)
 	if err != nil {
 		return session, err
 	}
@@ -89,7 +89,7 @@ func parseYAML(yaml *gbytes.Buffer) (interface{}, error) {
 	docStrings := strings.Split(string(yaml.Contents()), "---")
 	for _, docString := range docStrings {
 
-		obj, _, err := decode([]byte(docString), nil, nil)
+		obj, gk, err := decode([]byte(docString), nil, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -97,19 +97,19 @@ func parseYAML(yaml *gbytes.Buffer) (interface{}, error) {
 		switch o := obj.(type) {
 		case *v1.Namespace:
 			typedDoc, _ := obj.(*v1.Namespace)
-			typedDocs[typedDoc.Name] = typedDoc
+			typedDocs[gk.Kind + "/" + typedDoc.Name] = typedDoc
 		case *v1.Secret:
 			typedDoc, _ := obj.(*v1.Secret)
-			typedDocs[typedDoc.Name] = typedDoc
+			typedDocs[gk.Kind + "/" + typedDoc.Name] = typedDoc
 		case *v1.ConfigMap:
 			typedDoc, _ := obj.(*v1.ConfigMap)
-			typedDocs[typedDoc.Name] = typedDoc
+			typedDocs[gk.Kind + "/" + typedDoc.Name] = typedDoc
 		case *v1.Service:
 			typedDoc, _ := obj.(*v1.Service)
-			typedDocs[typedDoc.Name] = typedDoc
+			typedDocs[gk.Kind + "/" + typedDoc.Name] = typedDoc
 		case *appsv1.StatefulSet:
 			typedDoc, _ := obj.(*appsv1.StatefulSet)
-			typedDocs[typedDoc.Name] = typedDoc
+			typedDocs[gk.Kind + "/" + typedDoc.Name] = typedDoc
 		default:
 			fmt.Printf("Unknown type %s\n", format.Object(o, 1))
 		}
